@@ -19,6 +19,9 @@ Some linked dependency needs to be created here.
     - must be "Application Administrator" on the Azure AD tenant
     - must be "Owner" on the subscription
     - must have appropriate rights to an access policy on the KeyVault to generate and retrieve Certificates
+    - must have API permissions within the Azure Active directory for:
+        - API: Azure Active Directory Graph | Type: Application | Permission: Application.ReadWrite.OwnedBy
+        - API: Microsoft Graph | Type: Application | Permission: Application.ReadWrite.OwnedBy
 - An Azure DevOps Service Connection linked to the Service Principal above
 
 ## Deployment
@@ -32,13 +35,15 @@ Assuming you're connecting to a GitHub repository containing this code:
 
 ## Results
 - ModuleDeploy-pipeline.yml pipeline runs and
+    - takes module from repository and creates a zip file
+    - uploads DSC composite module zip to blob storage
     - creates automation account if it doesn't exist
-    - uploads DSC composite module to automation account
+    - imports DSC composite module to automation account from blob storage (with SAS)
 - azure-pipelines.yml pipeline runs and:
     - creates automation account if it doesn't exist
     - imports/updates Az.Accounts module
     - imports/updates remaining modules identified in parameters
-    - creates new automation runas account (and required service principal) if it doesn't exist
+    - creates new automation runas account (and required service principal) if it doesn't exist (generating an Azure KeyVault certificate to do so)
     - performs a 'first-time' run of the "Update-AutomationAzureModulesForAccount" runbook (because automation account is created with out-of-date default modules)
     - imports DSC configuration
     - compiles DSC configuration against configuration data

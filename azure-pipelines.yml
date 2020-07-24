@@ -5,6 +5,9 @@ trigger:
     include:
     - master
     - dev
+  paths:
+    exclude:
+    - README.md # Don't run pipeline if we're just updating docs
 
 variables:
   vmImageName: "windows-latest"
