@@ -2,9 +2,10 @@
   # This means that the "Create-AutomationAccount.ps1" must have been run successfully
 variables:
   storageAccountName: "jeffmpnstorage"
-  resourcegroupName: "mpn-mgmt"
-  automationresourcegroupName: "testpipe-rg"
-  automationAccountName: "automation-july2020-1"
+  resourcegroupName: "mpn-mgmt" # Used for the storage account where we place the module as blob
+  automationresourcegroupName: "githubtest-rg"
+  automationAccountName: "automation-july2020-2"
+  serviceConnectionName: "DevOps-to-JeffMPN"
 
 trigger:
   branches:
@@ -37,7 +38,7 @@ steps:
   displayName: "Upload latest modules"
   inputs:
     sourcePath: "$(Build.ArtifactStagingDirectory)/InfraBuildDSC.zip"
-    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    azureSubscription: $(serviceConnectionName) #This is the devops service connection name
     destination: azureBlob
     storage: $(storageAccountName)
     containerName: "modules"
@@ -47,7 +48,7 @@ steps:
 - task: AzurePowerShell@5
   displayName: "Create Automation Account"
   inputs:
-    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    azureSubscription: $(serviceConnectionName) #This is the devops service connection name
     ErrorActionPreference: 'Stop'
     FailOnStandardError: true
     ScriptType: 'inlineScript'
@@ -78,7 +79,7 @@ steps:
 - task: AzurePowerShell@5
   displayName: "Upload Module to Automation Account"
   inputs:
-    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    azureSubscription: $(serviceConnectionName) #This is the devops service connection name
     ErrorActionPreference: 'Stop'
     FailOnStandardError: true
     ScriptType: 'inlineScript'

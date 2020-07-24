@@ -1,10 +1,10 @@
-$subscriptionid             = "3d22393a"
-$resourceGroupName          = "testpipe-rg"
+$subscriptionid             = "3d22393a-84e3-4582-bb44-9b3e74965e9c"
+$resourceGroupName          = "githubtest-rg"
 $azureLocation              = "EastUS2"
-$automationAccountName      = "automation-july2020-1"
+$automationAccountName      = "automation-july2020-2"
 $dscConfigurationname       = "dsc_baseconfig"
 $dscConfigurationFile       = "dsc_baseconfig.ps1"
-$keyvaultName               = "devops-kv"
+$keyvaultName               = "devops-kv4390343"
 
 #This list contains all modules to import into the AzureAutomationAccount
 $DSCModuleList              = "Az.Compute,Az.Network,PSDscResources,xWebAdministration,ComputerManagementDSC,xRemoteDesktopAdmin,xDSCDomainJoin,StorageDSC,cCDROMdriveletter,CertificateDSC,NetworkingDSC,cMoveAzureTempDrive,xActiveDirectory,xPendingReboot,cChoco,xSmbShare".Split(',')

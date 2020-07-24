@@ -7,24 +7,12 @@ trigger:
     - dev
 
 variables:
-  - name: terraform_version
-    value: "0.12.16"
-  - name: keyVaultName
-    value: "devops-kv4390343"
-  - name: vmImageName
-    value: "windows-latest"
+  keyVaultName: "devops-kv4390343"
+  vmImageName: "windows-latest"
+  serviceConnectionName: "DevOps-to-JeffMPN"
 
 pool:
   vmImage: $(vmImageName)
-
-resources:
-  repositories:
-    - repository: mstrainlab
-      #git refers to Azure Repos Git repos
-      type: git
-      #To refer to a repo in another project within the same organization, prefix the name with that project's name. For example, OtherProject/otherRepo.
-      name: ms-train-lab
-      #ref: refs/tags/0.1.0 # ref name to use, defaults to 'refs/heads/master'
 
 steps:
 
@@ -34,17 +22,17 @@ steps:
 - task: AzurePowerShell@4
   displayName: 'Azure PowerShell script: Create Automation Account'
   inputs:
-    azureSubscription: 'DevOps-to-JeffMPN'
+    azureSubscription: $(serviceConnectionName)
     ScriptPath: 'Create-AutomationAccount.ps1'
     ScriptArguments: '-subscriptionid $(subscriptionid) -ResourceGroupName $(resourceGroupName) -AutomationAccountName $(automationAccountName)'
     azurePowerShellVersion: LatestVersion
-    #workingDirectory: ''
+    #workingDirectory: 'DSC/'
 
 # Upload Configuration and start Compilation job
 - task: AzurePowerShell@4
   displayName: 'Azure PowerShell script: Run DSC Input'
   inputs:
-    azureSubscription: 'DevOps-to-JeffMPN'
+    azureSubscription: $(serviceConnectionName)
     ScriptPath: 'dsc_Input.ps1'
     azurePowerShellVersion: LatestVersion
     #workingDirectory: 'DSC/'
