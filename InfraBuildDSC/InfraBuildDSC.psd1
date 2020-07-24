@@ -81,7 +81,7 @@
     AliasesToExport = @()
 
     # DSC resources to export from this module
-    #DscResourcesToExport = @('base','web','domaincontroller')
+    #DscResourcesToExport = @('base','web','db')
 
     # List of all modules packaged with this module
     # ModuleList = @()

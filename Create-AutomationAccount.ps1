@@ -111,7 +111,7 @@ if ((!$automationModule) -or ($galleryModule.Version -ne $automationModule.Versi
     Write-Information "Az.Accounts doesn't exist or is out of date, need to import it" -InformationAction Continue
     $importmodule = New-AzAutomationModule $resourceGroupName -AutomationAccountName $automationAccountName -Name "Az.Accounts" -ContentLink $moduleUri
 
-    while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated") -or ($importmodule.ProvisioningState -eq "ConnectionTypeImported")) {
+    while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated") -or ($importmodule.ProvisioningState -eq "ConnectionTypeImported") -or ($importmodule.ProvisioningState -eq "ModuleDataStored")) {
         Write-Information "Import check shows it isn't done yet." -InformationAction Continue
         $importmodule = Get-AzAutomationModule $resourceGroupName -AutomationAccountName $automationAccountName -Name "Az.Accounts"
         Write-Information "Current state of module: $($importmodule.ProvisioningState)" -InformationAction Continue

@@ -98,7 +98,7 @@ steps:
       Write-Information "$($moduleName) is being imported" -InformationAction Continue
       $importmodule = New-AzAutomationModule $(automationresourcegroupName) -AutomationAccountName $(automationAccountName) -Name "$($moduleName)" -ContentLink $SASToken
 
-      while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated") -or ($importmodule.ProvisioningState -eq "ConnectionTypeImported")) {
+      while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated") -or ($importmodule.ProvisioningState -eq "ConnectionTypeImported") -or ($importmodule.ProvisioningState -eq "ModuleDataStored")) {
         Write-Information "Import check shows it isn't done yet." -InformationAction Continue
         $importmodule = Get-AzAutomationModule $(automationresourcegroupName) -AutomationAccountName $(automationAccountName) -Name "$($moduleName)"
         Write-Information "Current state of module: $($importmodule.ProvisioningState)" -InformationAction Continue
