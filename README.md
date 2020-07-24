@@ -14,11 +14,13 @@ This also uses DSC Composite module, to compartmentalize your DSC code into mana
 - An Azure DevOps Service Connection linked to the Service Principal above
 
 ## Deployment
-Assuming you're connecting to a GitHub repository:
-- Within Azure DevOps, create a new Pipeline, and link it to your GitHub (creating a service connection using a personal access token)
+Assuming you're connecting to a GitHub repository containing this code:
+- Populate the "dsc_parameters.ps1" file with values as you desire
+- Within Azure DevOps, create a new Pipeline, and link it to your GitHub (creating a service connection using OATH login)
 - Select an existing yaml file to create the pipeline from
     - Do this twice for "ModuleDeploy-pipeline.yml" and "azure-pipelines.yml"
-- Populate the "dsc_parameters.ps1" file with values as you desire
+    - Don't forget to rename your pipelines in DevOps portal, to something meaningful
+- Manually run the "ModuleDeploy-pipeline.yml" pipeline
 
 ## Results
 - ModuleDeploy-pipeline.yml pipeline runs and
