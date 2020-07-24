@@ -3,9 +3,12 @@ The contents of this repo provide an example of how to insert Azure DSC workflow
 
 This also uses DSC Composite module, to compartmentalize your DSC code into managable sections.
 
+**Note**: on the initial run, this set of pipelines will likely take over 30 minutes to complete.
+
 ## Prerequisites
 - An Azure Subscription in which to deploy resources
-- An Azure KeyVault
+- An Azure KeyVault that will be used to generate certificates
+- An Azure Storage Account with a container, to store composite module zip
 - An Azure DevOps organization you can create pipelines in
 - An Azure Service Principal with the following RBAC: (so that it can itself create new service principals)
     - must be "Application Administrator" on the Azure AD tenant

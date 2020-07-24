@@ -105,13 +105,11 @@ steps:
         Start-Sleep -Seconds 25
         }
         $importmodule
-        if ($importmodule.ProvisioningState -ne "Succeeded" -or $importmodule.ProvisioningState -ne "ContentValidated")
+        if ($importmodule.ProvisioningState -ne "Succeeded")
         {
-
-          Write-Information "$($moduleName) module import failed with status: $importmodule.ProvisioningState" -InformationAction Continue
+          Write-Information "$($moduleName) module import failed with status: $($importmodule.ProvisioningState)" -InformationAction Continue
             Write-Host "##vso[task.complete result=Failed;]DONE"
             exit 1
         } else {
             Write-Information "$($moduleName) module import completed successfully." -InformationAction Continue
         }
-
