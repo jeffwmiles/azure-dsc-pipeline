@@ -10,11 +10,13 @@ Node $AllNodes.NodeName
 
         if ($Node.Role -eq "Database"){
             db databaseconfig {
+                DependsOn = "[baseline]baselineconfig"
             }
         }
 
         if ($Node.Role -eq "WebServer"){
             web webconfig {
+                DependsOn = "[baseline]baselineconfig"
             }
         }
 

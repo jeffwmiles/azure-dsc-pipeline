@@ -3,7 +3,12 @@ The contents of this repo provide an example of how to insert Azure DSC workflow
 
 This also uses DSC Composite module, to compartmentalize your DSC code into managable sections.
 
-**Note**: on the initial run, this set of pipelines will likely take over 30 minutes to complete.
+**Note:** on the initial run, this set of pipelines will likely take over 30 minutes to complete.
+
+**To-Do:**
+There is a bit of a chicken-egg scenario with the pipeline triggers. If I update the composite module, I need the module pipeline to run before the DSC import/compile pipeline.
+But the module doesn't need to be re-imported every time a change occurs within the repo, so I don't want to collapse it into one pipeline.
+Some linked dependency needs to be created here.
 
 ## Prerequisites
 - An Azure Subscription in which to deploy resources

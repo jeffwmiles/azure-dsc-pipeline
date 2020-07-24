@@ -21,12 +21,11 @@ Configuration web {
     cChocoPackageInstaller iiscrypto-cli
         {
             Name = "iiscrypto-cli"
-            DependsOn = "[cChocoInstaller]installChoco"
         }
     cChocoPackageInstaller iis-urlrewrite
         {
             Name = "UrlRewrite"
-            DependsOn = "[cChocoInstaller]installChoco","[WindowsFeatureSet]IISComponents"
+            DependsOn = "[WindowsFeatureSet]IISComponents"
         }
     Script IISCryptoApplication
         {
