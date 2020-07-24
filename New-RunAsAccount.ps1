@@ -70,7 +70,14 @@ if ($pfxcert) {
 }
 # Need to write cert to file in order to upload to Automation Certificate Asset
 # Only works with Get-AzureKeyVaultSecret, not certificate
+$certoperation = Get-AzKeyVaultCertificateOperation -Name "$($automationAccountName)RunAsAccountCert" -vaultName "$keyvaultName"
 Write-Host "Getting KeyVault secret again for local storage"
+while (($certoperation.Status -eq "inProgress")) {
+    Write-Information "Certificate generation is still in progress" -InformationAction Continue
+    $certoperation = Get-AzKeyVaultCertificateOperation -Name "$($automationAccountName)RunAsAccountCert" -vaultName "$keyvaultName"
+    Write-Information "Current state of certificate operation is: $($certoperation.Status)" -InformationAction Continue
+    Start-Sleep -Seconds 30
+}
 $kvcert = Get-AzKeyVaultSecret -Name "$($automationAccountName)RunAsAccountCert" -vaultName "$keyvaultName"
 Write-Host "Convert into object x509 certificate object"
 $pfxCertObject = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2 -ArgumentList @([Convert]::FromBase64String($kvcert.SecretValueText), "", [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
