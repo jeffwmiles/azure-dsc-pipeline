@@ -1,0 +1,115 @@
+# Dependent modules of this DSC composite must already exist!
+  # This means that the "Create-AutomationAccount.ps1" must have been run successfully
+variables:
+  storageAccountName: "jeffmpnstorage"
+  resourcegroupName: "mpn-mgmt"
+  automationresourcegroupName: "testpipe-rg"
+  automationAccountName: "automation-july2020-1"
+
+trigger:
+  branches:
+    include:
+    - master
+    - dev
+  paths:
+    include:
+    - InfraBuildDSC/*
+
+    #exclude:
+    #- docs/README.md
+
+pool:
+    vmImage: 'windows-latest'
+
+steps:
+
+# Zip up the file
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: './InfraBuildDSC'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/InfraBuildDSC.zip'
+    replaceExistingArchive: true
+
+# Copy module to Blob Container
+- task: AzureFileCopy@4
+  displayName: "Upload latest modules"
+  inputs:
+    sourcePath: "$(Build.ArtifactStagingDirectory)/InfraBuildDSC.zip"
+    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    destination: azureBlob
+    storage: $(storageAccountName)
+    containerName: "modules"
+
+
+# Create Automation Account if not exists already
+- task: AzurePowerShell@5
+  displayName: "Create Automation Account"
+  inputs:
+    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    ErrorActionPreference: 'Stop'
+    FailOnStandardError: true
+    ScriptType: 'inlineScript'
+    azurePowerShellVersion: 'LatestVersion'
+    inline: |
+      # Create resource group just for Azure Automation if not exists
+      $rgtest = Get-AzResourceGroup $(automationresourcegroupName) -ErrorAction Ignore
+      if (-not $rgtest) {
+          New-AzResourceGroup -Name $(automationresourcegroupName) -Location $azureLocation
+          Write-Host "$(automationresourcegroupName) has been created."
+          Start-Sleep -s 25 # wait 25 seconds so Automation Account can be created
+      }
+      else {
+          Write-Host "$(automationresourcegroupName) exists already."
+      }
+
+      # Create Azure Automation account if not exists
+      $aatest = Get-AzAutomationAccount -resourceGroupName $(automationresourcegroupName) -Name $(automationAccountName) -ErrorAction Ignore
+      if (-not $aatest) {
+          New-AzAutomationAccount -ResourceGroupName $(automationresourcegroupName)  -Location $azureLocation -Name $(automationAccountName) | out-null
+          Write-Host "$(automationAccountName) has been created."
+      }
+      else {
+          Write-Host "$(automationAccountName) exists already."
+      }
+
+# Import the module to Azure Automation
+- task: AzurePowerShell@5
+  displayName: "Upload Module to Automation Account"
+  inputs:
+    azureSubscription: 'DevOps-to-JeffMPN' #This is the devops service connection name
+    ErrorActionPreference: 'Stop'
+    FailOnStandardError: true
+    ScriptType: 'inlineScript'
+    azurePowerShellVersion: 'LatestVersion'
+    inline: |
+      $moduleName = "InfraBuildDSC"
+      $accountKey = (Get-AzStorageAccountKey -ResourceGroupName $(resourcegroupName) -Name $(storageAccountName))[0].Value
+      $ctx = New-AzStorageContext -StorageAccountName $(StorageAccountName) -StorageAccountKey $accountKey
+      Write-Information "Generate URL and SAS Token" -InformationAction Continue
+      #$moduleUri = "https://$(StorageAccountName).blob.core.windows.net/modules/$($moduleName).zip"
+      $blob = Get-AzStorageBlob -Container "modules" -Blob "$moduleName.zip" -context $ctx
+      $moduleUri = $blob.ICloudBlob.Uri.AbsoluteUri
+      $SASToken = New-AzStorageBlobSASToken -CloudBlob $blob.ICloudBlob -Context $ctx -FullUri -ExpiryTime (Get-Date).AddMinutes(5) -Permission r
+
+      Write-Information "$($moduleName) is being imported" -InformationAction Continue
+      $importmodule = New-AzAutomationModule $(automationresourcegroupName) -AutomationAccountName $(automationAccountName) -Name "$($moduleName)" -ContentLink $SASToken
+
+      while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated")) {
+        Write-Information "Import check shows it isn't done yet." -InformationAction Continue
+        $importmodule = Get-AzAutomationModule $(automationresourcegroupName) -AutomationAccountName $(automationAccountName) -Name "$($moduleName)"
+        Write-Information "Current state of module: $($importmodule.ProvisioningState)" -InformationAction Continue
+        Start-Sleep -Seconds 25
+        }
+        $importmodule
+        if ($importmodule.ProvisioningState -ne "Succeeded" -or $importmodule.ProvisioningState -ne "ContentValidated")
+        {
+
+          Write-Information "$($moduleName) module import failed with status: $importmodule.ProvisioningState" -InformationAction Continue
+            Write-Host "##vso[task.complete result=Failed;]DONE"
+            exit 1
+        } else {
+            Write-Information "$($moduleName) module import completed successfully." -InformationAction Continue
+        }
+

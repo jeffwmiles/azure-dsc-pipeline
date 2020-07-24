@@ -1,0 +1,50 @@
+
+trigger:
+  #When the master branch receives a commit, and a file changes in a specific folder this pipeline will run
+  branches:
+    include:
+    - master
+    - dev
+
+variables:
+  - name: terraform_version
+    value: "0.12.16"
+  - name: keyVaultName
+    value: "devops-kv4390343"
+  - name: vmImageName
+    value: "windows-latest"
+
+pool:
+  vmImage: $(vmImageName)
+
+resources:
+  repositories:
+    - repository: mstrainlab
+      #git refers to Azure Repos Git repos
+      type: git
+      #To refer to a repo in another project within the same organization, prefix the name with that project's name. For example, OtherProject/otherRepo.
+      name: ms-train-lab
+      #ref: refs/tags/0.1.0 # ref name to use, defaults to 'refs/heads/master'
+
+steps:
+
+  # Create Automation Account. This script will call and create RunAs account if needed, using KeyVault certificate.
+  # Your DevOps service connection must be "Application Administrator" on the tenant for this to work properly
+  # Your DevOps service connection must be "Owner" on the subscription for this to work properly
+- task: AzurePowerShell@4
+  displayName: 'Azure PowerShell script: Create Automation Account'
+  inputs:
+    azureSubscription: 'DevOps-to-JeffMPN'
+    ScriptPath: 'Create-AutomationAccount.ps1'
+    ScriptArguments: '-subscriptionid $(subscriptionid) -ResourceGroupName $(resourceGroupName) -AutomationAccountName $(automationAccountName)'
+    azurePowerShellVersion: LatestVersion
+    #workingDirectory: ''
+
+# Upload Configuration and start Compilation job
+- task: AzurePowerShell@4
+  displayName: 'Azure PowerShell script: Run DSC Input'
+  inputs:
+    azureSubscription: 'DevOps-to-JeffMPN'
+    ScriptPath: 'dsc_Input.ps1'
+    azurePowerShellVersion: LatestVersion
+    #workingDirectory: 'DSC/'
