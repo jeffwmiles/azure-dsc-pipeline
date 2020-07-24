@@ -111,14 +111,14 @@ if ((!$automationModule) -or ($galleryModule.Version -ne $automationModule.Versi
     Write-Information "Az.Accounts doesn't exist or is out of date, need to import it" -InformationAction Continue
     $importmodule = New-AzAutomationModule $resourceGroupName -AutomationAccountName $automationAccountName -Name "Az.Accounts" -ContentLink $moduleUri
 
-    while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated")) {
+    while (($importmodule.ProvisioningState -eq "Creating") -or ($importmodule.ProvisioningState -eq "ContentValidated") -or ($importmodule.ProvisioningState -eq "ConnectionTypeImported")) {
         Write-Information "Import check shows it isn't done yet." -InformationAction Continue
         $importmodule = Get-AzAutomationModule $resourceGroupName -AutomationAccountName $automationAccountName -Name "Az.Accounts"
         Write-Information "Current state of module: $($importmodule.ProvisioningState)" -InformationAction Continue
         Start-Sleep -Seconds 25
     }
     $importmodule
-    if ($importmodule.ProvisioningState -ne "Succeeded" -or $importmodule.ProvisioningState -ne "ContentValidated")
+    if ($importmodule.ProvisioningState -ne "Succeeded")
     {
         Write-Information "Az.Accounts module import failed." -InformationAction Continue
         Write-Host "##vso[task.complete result=Failed;]DONE"
