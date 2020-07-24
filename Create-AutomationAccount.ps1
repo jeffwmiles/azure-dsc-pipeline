@@ -3,11 +3,6 @@ param(
     [string]$paramFile = '.\dsc_parameters.ps1'
 )
 
-Write-Host "Check if running in pipeline. If so, set location for relative paths to work."
-if ($ENV:BUILD_SOURCESDIRECTORY) {
-    Set-Location "$ENV:BUILD_SOURCESDIRECTORY\DSC\"
-}
-
 # Dot-Source the parameters file
 . $paramFile
 
