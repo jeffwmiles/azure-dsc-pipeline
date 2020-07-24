@@ -6,6 +6,7 @@ variables:
   automationresourcegroupName: "githubtest-rg"
   automationAccountName: "automation-july2020-2"
   serviceConnectionName: "DevOps-to-JeffMPN"
+  azureLocation: "EastUS2"
 
 trigger:
   branches:
@@ -57,7 +58,7 @@ steps:
       # Create resource group just for Azure Automation if not exists
       $rgtest = Get-AzResourceGroup $(automationresourcegroupName) -ErrorAction Ignore
       if (-not $rgtest) {
-          New-AzResourceGroup -Name $(automationresourcegroupName) -Location $azureLocation
+          New-AzResourceGroup -Name $(automationresourcegroupName) -Location $(azureLocation)
           Write-Host "$(automationresourcegroupName) has been created."
           Start-Sleep -s 25 # wait 25 seconds so Automation Account can be created
       }
@@ -68,7 +69,7 @@ steps:
       # Create Azure Automation account if not exists
       $aatest = Get-AzAutomationAccount -resourceGroupName $(automationresourcegroupName) -Name $(automationAccountName) -ErrorAction Ignore
       if (-not $aatest) {
-          New-AzAutomationAccount -ResourceGroupName $(automationresourcegroupName)  -Location $azureLocation -Name $(automationAccountName) | out-null
+          New-AzAutomationAccount -ResourceGroupName $(automationresourcegroupName)  -Location $(azureLocation) -Name $(automationAccountName) | out-null
           Write-Host "$(automationAccountName) has been created."
       }
       else {
