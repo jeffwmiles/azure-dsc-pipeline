@@ -7,7 +7,6 @@ trigger:
     - dev
 
 variables:
-  keyVaultName: "devops-kv4390343"
   vmImageName: "windows-latest"
   serviceConnectionName: "DevOps-to-JeffMPN"
 
@@ -24,7 +23,6 @@ steps:
   inputs:
     azureSubscription: $(serviceConnectionName)
     ScriptPath: 'Create-AutomationAccount.ps1'
-    ScriptArguments: '-subscriptionid $(subscriptionid) -ResourceGroupName $(resourceGroupName) -AutomationAccountName $(automationAccountName)'
     azurePowerShellVersion: LatestVersion
     #workingDirectory: 'DSC/'
 
