@@ -6,6 +6,11 @@ param(
 
 # This script assumes that "Create-AutomationAccount.ps1" has been successfully run.
 
+Write-Host "Check if running in pipeline. If so, set location for relative paths to work."
+if ($ENV:BUILD_SOURCESDIRECTORY) {
+    Set-Location "$ENV:BUILD_SOURCESDIRECTORY\"
+}
+
 # Dot-Source the parameters file
 . $paramFile
 
